@@ -10,4 +10,25 @@
 .386
 .model flat, stdcall, c
 .stack 4096
+;ExitProcess proto,dwExitCode:dword
+
 .data
+msg1 BYTE 'Bienvenidos!',0Ah,0
+
+.code
+includelib libucrt.lib
+includelib legacy_stdio_definitions.lib
+includelib libcmt.lib
+includelib libvcruntime.lib
+
+extrn printf:near
+extrn exit:near
+
+public main
+main proc
+	
+
+main endp
+end 
+
+
