@@ -77,5 +77,6 @@ RandomPregunta proc
     push OFFSET formatString  ; Push the format string
     call printf  ; Call printf to print the string
     add esp, 8  ; Clean up the stack
+    ret
 RandomPregunta endp
 end 
