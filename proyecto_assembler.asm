@@ -60,23 +60,23 @@ main endp
 ;output: NO utiliza
 ;___________________________________________
 RandomPregunta proc
-    ; Generate a random index
+    ; Genera el random index
     mov ax, dx
     xor dx, dx
     mov cx, 13
-    div cx  ; DX contains the remainder of the division (0 to 12)
+    div cx  
 
-    ; Calculate the index based on the remainder
-    movzx esi, dx  ; Zero-extend the remainder to 32 bits
+    ; Calculata el index para la pregunta
+    movzx esi, dx  
 
-    ; Get the address of the random message
+    
     mov eax, [arrayOfStrings + esi*4]
 
-    ; Print the random message using printf
-    push eax  ; Push the address as the argument for printf
-    push OFFSET formatString  ; Push the format string
-    call printf  ; Call printf to print the string
-    add esp, 8  ; Clean up the stack
+    
+    push eax  
+    push OFFSET formatString  
+    call printf  ; Imprime la pregunta
+    add esp, 8  ; limpia stack
     ret
 RandomPregunta endp
 end 
