@@ -12,22 +12,28 @@
 .stack 4096
 ;ExitProcess proto,dwExitCode:dword
 
+
+
 .data
-msg0 BYTE 'Bienvenidos!, 0Ah, 0
-preg1 BYTE '¿Cuánto es | -77 | ?', 0Ah, 0
-preg2 BYTE '¿16 + 32 es igual a?', 0Ah, 0
-preg3 BYTE 'raíz cuadrada de 144', 0Ah, 0
-preg4 BYTE '¿Cuánto es e a la 0?', 0Ah, 0
-preg5 BYTE '¿Cuanto es cos(90º)?', 0Ah, 0
-preg6 BYTE 'La derivada de 5x es', 0Ah, 0
-preg7 BYTE '( 5 + 2) * 10 / 2 es', 0Ah, 0
-preg8 BYTE '¿ Cuánto es 56 / 7 ?', 0Ah, 0
-preg9 BYTE 'si (x*2)/3 = 10, x es', 0Ah, 0
-preg10 BYTE '6x8 menos cuatro es:', 0Ah, 0
-preg11 BYTE '1/3 de 66 es igual a', 0Ah, 0
-preg12 BYTE 'si 10+x = 15, 2x es:', 0Ah, 0
-preg13 BYTE 'x+y=1 y 3x+2y=6, x =', 0Ah, 0
-arr1 DD 77,48,12,1,0,5,35,9,15,44,22,10,4
+msg1 BYTE ' Cuanto es | -77 | ?',0Ah,0
+msg2 BYTE ' 16 + 32 es igual a?',0Ah,0
+msg3 BYTE 'raiz cuadrada de 144',0Ah,0
+msg4 BYTE ' Cuanto es e a la 0?', 0AH,0
+msg5 BYTE ' Cuanto es cos(90°)?', 0AH,0
+msg6 BYTE 'La derivada de 5x es', 0AH,0
+msg7 BYTE '( 5 + 2) * 10 / 2 es', 0AH,0
+msg8 BYTE '  Cuanto es 56 / 7 ?', 0AH,0
+msg9 BYTE 'si (x*2)/3 = 10, x es', 0AH,0
+msg10 BYTE '6x8 menos cuatro es:', 0AH,0
+msg11 BYTE '1/3 de 66 es igual a', 0AH,0
+msg12 BYTE 'si 10+x = 15, 2x es:', 0AH,0
+msg13 BYTE 'x+y=1 y 3x+2y=6, x =', 0AH,0
+;Array de las preguntas
+arrayOfStrings DWORD OFFSET msg1, OFFSET msg2, OFFSET msg3, OFFSET msg4, OFFSET msg5, OFFSET msg6, OFFSET msg7, OFFSET msg8, OFFSET msg9, OFFSET msg10, OFFSET msg11, OFFSET msg12, OFFSET msg13
+arraySize DWORD 13
+;Array de las respuetas
+arr DWORD 77, 48, 12, 1, 0, 5, 35, 9, 15, 44, 22, 10, 4
+formatString BYTE '%s', 0
 
 .code
 includelib libucrt.lib
@@ -40,9 +46,36 @@ extrn exit:near
 
 public main
 main proc
-	
+    call RandomPregunta
+
+    ; Exit the program
+    push 0
+    call exit
 
 main endp
+; ------------ SUBRUTINAS -------------
+;___________________________________________
+;RandomPregunta
+;input: var global arrayOfStrings dword
+;output: NO utiliza
+;___________________________________________
+RandomPregunta proc
+    ; Generate a random index
+    mov ax, dx
+    xor dx, dx
+    mov cx, 13
+    div cx  ; DX contains the remainder of the division (0 to 12)
+
+    ; Calculate the index based on the remainder
+    movzx esi, dx  ; Zero-extend the remainder to 32 bits
+
+    ; Get the address of the random message
+    mov eax, [arrayOfStrings + esi*4]
+
+    ; Print the random message using printf
+    push eax  ; Push the address as the argument for printf
+    push OFFSET formatString  ; Push the format string
+    call printf  ; Call printf to print the string
+    add esp, 8  ; Clean up the stack
+RandomPregunta endp
 end 
-
-
