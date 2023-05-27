@@ -27,6 +27,7 @@ preg10 BYTE '6x8 menos cuatro es:', 0Ah, 0
 preg11 BYTE '1/3 de 66 es igual a', 0Ah, 0
 preg12 BYTE 'si 10+x = 15, 2x es:', 0Ah, 0
 preg13 BYTE 'x+y=1 y 3x+2y=6, x =', 0Ah, 0
+arr1 DD 77,48,12,1,0,5,35,9,15,44,22,10,4
 
 .code
 includelib libucrt.lib
