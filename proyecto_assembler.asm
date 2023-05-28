@@ -5,15 +5,12 @@
 ; Nombre: proyecto_assembler.asm
 ; Descripción: Proyecto #2 Assembler, temario 7
 ; Autor: Esteban Meza #22252 ,Sofia Mishell Velasquez #22049, Nicolle Gordillo #22246,Paula Rebeca Barillas #22764
-
 ; ----------------------------------------------- 
 
 .386
 .model flat, stdcall, c
 .stack 4096
 ;ExitProcess proto,dwExitCode:dword
-
-
 
 .data
 msg1 BYTE ' Cuanto es | -77 | ?',0Ah,0
@@ -35,6 +32,8 @@ arraySize DWORD 13
 ;Array de las respuetas
 arr DWORD 77, 48, 12, 1, 0, 5, 35, 9, 15, 44, 22, 10, 4
 formatString BYTE '%s', 0
+respCorrecta BYTE 'Respuesta Correcta', 0
+respIncorrecta BYTE 'Respuesta Incorrecta', 0
 
 .code
 includelib libucrt.lib
@@ -44,10 +43,15 @@ includelib libvcruntime.lib
 
 extrn printf:near
 extrn exit:near
+extrn scanf:near
 
 public main
 main proc
     call RandomPregunta
+    push OFFSET formatString
+    lea eax, [esp + 8]
+    push eax
+    call scanf
 
     ; Exit the program
     push 0
@@ -80,4 +84,6 @@ RandomPregunta proc
     add esp, 8  ; limpia stack
     ret
 RandomPregunta endp
+
+
 end 
