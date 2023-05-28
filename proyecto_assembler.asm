@@ -34,6 +34,7 @@ arr DWORD 77, 48, 12, 1, 0, 5, 35, 9, 15, 44, 22, 10, 4
 formatString BYTE '%s', 0
 respCorrecta BYTE 'Respuesta Correcta', 0
 respIncorrecta BYTE 'Respuesta Incorrecta', 0
+fmt db "%d", 0
 
 .code
 includelib libucrt.lib
@@ -52,7 +53,7 @@ main proc
     lea eax, [esp + 8]
     push eax
     call scanf
-
+    mov esi, offset arr
     ; Exit the program
     push 0
     call exit
@@ -84,6 +85,15 @@ RandomPregunta proc
     add esp, 8  ; limpia stack
     ret
 RandomPregunta endp
+label1:
+	mov eax, [edi]
+	push eax
+	push offset arrayOfStrings 
+	call printf
 
+	lea eax, [esi]		
+	push eax			
+	push offset fmt		
+	call scanf
 
 end 
