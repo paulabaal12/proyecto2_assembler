@@ -1,12 +1,11 @@
 ; -----------------------------------------------
 ; UNIVERSIDAD DEL VALLE DE GUATEMALA 
-; Organizaci�n de computadoras y Assembler
+; Organización de computadoras y Assembler
 ; Ciclo 1 - 2023
 ; Nombre: proyecto_assembler.asm
-; Descripci�n: Proyecto #2 Assembler, temario 7
+; Descripción: Proyecto #2 Assembler, temario 7
 ; Autor: Esteban Meza #22252 ,Sofia Mishell Velasquez #22049, Nicolle Gordillo #22246,Paula Rebeca Barillas #22764
 ; ----------------------------------------------- 
-
 
 .386
 .model flat, stdcall, c
@@ -20,7 +19,7 @@ msg1 BYTE ' Cuanto es | -77 | ?',0Ah,0
 msg2 BYTE ' 16 + 32 es igual a?',0Ah,0
 msg3 BYTE 'raiz cuadrada de 144',0Ah,0
 msg4 BYTE ' Cuanto es e a la 0?', 0AH,0
-msg5 BYTE ' Cuanto es cos(90�)?', 0AH,0
+msg5 BYTE ' Cuanto es cos(90°)?', 0AH,0
 msg6 BYTE 'La derivada de 5x es', 0AH,0
 msg7 BYTE '( 5 + 2) * 10 / 2 es', 0AH,0
 msg8 BYTE '  Cuanto es 56 / 7 ?', 0AH,0
@@ -29,10 +28,21 @@ msg10 BYTE '6x8 menos cuatro es:', 0AH,0
 msg11 BYTE '1/3 de 66 es igual a', 0AH,0
 msg12 BYTE 'si 10+x = 15, 2x es:', 0AH,0
 msg13 BYTE 'x+y=1 y 3x+2y=6, x =', 0AH,0
+;Preguntas dificiles
+p1 BYTE 'Cual es el area de un circulo con radio 5 unidades? (en pi )', 0AH,0 ; es 25
+p2 BYTE 'Cual es la pendiente de la recta que pasa por los puntos (2, 5) y (4, 3)?', 0AH,0 ;es 2
+prespuestas DWORD 10, 15, 20, 25, 1, 2, 3, 4 
+opf BYTE '%s).%d', 0AH, 0
+
+paso DWORD 0 ; variable para que se pueda ajustar al arraylist de las respuestas
+
+;Array de opciones para cada pregunta
+opi BYTE 'a', 0, 'b', 0, 'c', 0, 'd', 0, 'a', 0, 'b', 0, 'c', 0, 'd', 0
 ;Array de las preguntas
 arrayOfStrings DWORD OFFSET msg1, OFFSET msg2, OFFSET msg3, OFFSET msg4, OFFSET msg5, OFFSET msg6, OFFSET msg7, OFFSET msg8, OFFSET msg9, OFFSET msg10, OFFSET msg11, OFFSET msg12, OFFSET msg13
 arraySize DWORD 13
 ;Array de las respuetas
+
 arr DWORD 77, 48, 12, 1, 0, 5, 35, 9, 15, 44, 22, 10, 4
 formatString BYTE '%s', 0
 index DWORD 0, 0, 0
@@ -48,6 +58,7 @@ includelib libvcruntime.lib
 
 extrn printf:near
 extrn exit:near
+extrn scanf:near
 
 public main
 main proc
@@ -62,6 +73,8 @@ main proc
     add ebx,1
     mov comp2, ebx
     call RandomPregunta
+    call  DificilPregunta1
+
     ; Exit the program
     push 0
     call exit
@@ -123,4 +136,46 @@ call printf  ; Imprime la pregunta
 add esp, 8  ; Limpia el stack
 ret
 RandomPregunta endp
+;___________________________________________
+;DificilPregunta1
+;input: var global opi, p1, p2
+;output: var global puntos
+;___________________________________________
+DificilPregunta1 proc
+;Pregunta 1
+    mov esi, offset prespuestas ; arreglo de respuestas
+	mov ebx, sizeof	prespuestas ; tamaño del arreglo respuestas
+	mov edi, offset	opi ;arreglo de los a, b, c, d 
+    push offset p1 ;impresión de la pregunta 1
+	call printf
+label1:
+	mov eax, [esi]     
+    push eax
+    push edi
+    push offset opf
+    call printf
+    add edi, 2
+    add esi, 4
+    sub ebx, 4
+    cmp ebx, 16            
+    jne label1
+;Pregunta 2
+    mov esi, offset prespuestas ; arreglo de respuestas
+	mov ebx, sizeof	prespuestas ; tamaño del arreglo respuestas
+	mov edi, offset	opi ;arreglo de los a, b, c, d 
+    push offset p2 ;impresión de la pregunta 2
+	call printf
+label2:
+	mov eax, [esi+16]     
+    push eax
+    push edi
+    push offset opf
+    call printf
+    add edi, 2
+    add esi, 4
+    sub ebx, 4
+    cmp ebx, 16           
+    jne label2
+    ret
+DificilPregunta1 endp
 end 
