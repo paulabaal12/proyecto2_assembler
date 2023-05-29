@@ -3,9 +3,10 @@
 ; Organización de computadoras y Assembler
 ; Ciclo 1 - 2023
 ; Nombre: proyecto_assembler.asm
-; Descripción: 
-; Autor: 
+; Descripción: Proyecto #2 Assembler, temario 7
+; Autor: Esteban Meza #22252 ,Sofia Mishell Velasquez #22049, Nicolle Gordillo #22246,Paula Rebeca Barillas #22764
 ; ----------------------------------------------- 
+
 
 .386
 .model flat, stdcall, c
