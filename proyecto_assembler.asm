@@ -215,44 +215,4 @@ label2:
 DificilPregunta1 endp
 
 
-Respuestas proc
-    ; lee lo ingresado del usuario
-    lea eax, [ebp-4] ; busca lo ingresao
-    push eax ; Push al stack
-    push offset fmt_valor 
-    call scanf ; lee lo ingresao
-    add esp, 8 ; Limpua stack
-
-    ; busca esto en el array
-    mov esi, offset arr 
-    mov ebx, sizeof arr 
-    xor ecx, ecx 
-
-    lInput:
-        cmp ecx, ebx ; compara con la medida del array
-        jge lnoencontrado 
-
-        mov eax, [esi + ecx*4] ; tine el valor del index
-        cmp eax, [ebp-4] ; Compara
-        je lencontrado ; si es igual 
-
-        add ecx, 1 ; Increment the loop counter
-        jmp lrevisar ; Repeat the loop
-
-    lnoencontrado:
-        push offset incorrecta
-        call printf ; incica si es correcta
-        jmp lFinRespuestas
-
-    lIngreo:
-        add puntos, 1 
-        push offset correcta
-        call printf ; Indica si es incorrecta
-
-    lRespuestas:
-    add esp, 4 
-    ret
-Respuestas endp
-
-;
 end 
