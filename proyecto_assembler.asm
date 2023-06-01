@@ -36,20 +36,25 @@ p2 BYTE 'Cual es la pendiente de la recta que pasa por los puntos (2, 5) y (4, 3
 
 prespuestas DWORD 10, 15, 20, 25, 1, 2, 3, 4 
 opf BYTE '%s).%d', 0AH, 0
+
 ;Mensajes de incorrecta y correcta
 incorrecta BYTE 'Respuesta incorrecta ingresada',0AH,0
 correcta BYTE 'Respuesta correcta',0AH,0
-puntos DW 0; puntos acumulados
+puntos DD 0; puntos acumulados
 bandera DW 0; bandera indicadora si la respuesta es correcta
 value DW 0;
+
 ;Array de opciones para cada pregunta
 opi BYTE 'a', 0, 'b', 0, 'c', 0, 'd', 0, 'a', 0, 'b', 0, 'c', 0, 'd', 0
 opi2 BYTE 'a', 0, 'b', 0, 'c', 0, 'd', 0
+
 ;Array de las preguntas
 arrayOfStrings DWORD OFFSET msg1, OFFSET msg2, OFFSET msg3, OFFSET msg4, OFFSET msg5, OFFSET msg6, OFFSET msg7, OFFSET msg8, OFFSET msg9, OFFSET msg10, OFFSET msg11, OFFSET msg12, OFFSET msg13
 arraySize DWORD 13
+
 ;Array de las respuestas
 arr DWORD 77, 48, 12, 1, 0, 5, 35, 8, 15, 44, 22, 10, 4
+
 ;posibles respuestas
 arr1 DWORD 77, 70, 71, 65
 arr2 DWORD 32, 47, 48, 49
@@ -69,6 +74,37 @@ formatString BYTE '%s', 0
 comp1 DWORD 0
 comp2 DWORD 0
 comp DWORD 0
+
+; Mensajes de intoruccion
+intro1 BYTE 'Bienvenido al juego', 0AH, 0
+intro2 BYTE 'El objetivo de este juego es hacerle multiples preguntas matematicas las cuales usted debera de', 0AH, 0
+intro2h BYTE 'responder para ir ganando dinero', 0AH, 0
+intro3 BYTE 'Instrucciones:', 0AH, 0
+separador BYTE '______________________________________', 0AH, 0
+intro4 BYTE '1. Lea los problemas detenidamente', 0AH, 0
+intro5 BYTE '2. Resuelva los problemas dados', 0AH, 0
+intro6 BYTE '3. Escriba la respuesta que usted cree este correcta', 0AH, 0
+intro6h BYTE '(Atencion: No poner la letra de la respuesta, si no la respuesta como tal)', 0AH, 0
+intro7 BYTE '4. Elija si desea continuar jugando y ganar mas dinero o retirarse y quedarse con la cantidad actual', 0AH, 0
+intro8 BYTE 'Le deseamos suerte!', 0AH, 0
+intro9 BYTE 'Escriba 1 para empezar el juego y 0 para salir', 0AH, 0
+
+;info puntos
+puntos1 BYTE 'En esta pregunta puede ganar 10 puntos', 0AH, 0
+puntos2 BYTE 'En esta pregunta puede ganar 60 puntos', 0AH, 0
+
+
+;mensaje continuar o retirar
+cont1 BYTE 'Presione 1 si desea continuar el juego y arriesgar perder su dinero actual', 0AH, 0
+cont2 BYTE 'Presione 0 para salir y quedarse con el dinero ganado', 0AH, 0
+
+;despedida
+ganado BYTE 'Gano la cantidad de: Q%d', 0Ah, 0
+desp BYTE 'Gracias por Jugar, Adios', 0AH, 0
+
+;ganador
+ganador BYTE 'Felicitaciones usted es el ganador!', 0Ah, 0
+
 .code
 includelib libucrt.lib
 includelib legacy_stdio_definitions.lib
@@ -78,13 +114,89 @@ includelib libvcruntime.lib
 extrn printf:near
 extrn exit:near
 extrn scanf:near
+
 public main
 main proc
+
+mov puntos, 0
+
+; Codigo de introduccion
+push offset intro1
+call printf
+
+push offset intro2
+call printf
+
+push offset intro2h
+call printf
+
+push offset intro3
+call printf
+
+push offset separador
+call printf
+
+push offset intro4
+call printf
+
+push offset intro5
+call printf
+
+push offset intro6
+call printf
+
+push offset intro6h
+call printf
+
+push offset intro7
+call printf
+
+push offset intro8
+call printf
+
+push offset separador
+call printf
+
+push offset intro9
+call printf
+
+
+    add esp, 4 ; Limpia la pila
+    lea eax, [ebp-4] ; Obtiene la dirección de la variable local
+    push eax ; Pone la dirección en la pila
+    push offset fmt_valor ; Pone la dirección de la cadena de formato en la pila
+    call scanf ; Llama a la función scanf para leer el número ingresado
+    add esp, 8 ; Limpia la pila
+    mov eax, [ebp-4] ; Mueve el número ingresado a eax
+
+    .IF eax == 1 ; verificar si empezar el juego
+    je jugar
+
+	.ELSE
+    jne terminar
+
+	.ENDIF
+
+
+    jugar:
+
+    push offset separador
+    call printf
+    push offset puntos1
+    call printf
+    push offset separador
+    call printf
     call RandomPregunta
     push bx
     ;push cx
     mov [index], esi
     call Respuestas1
+    push offset separador
+    call printf
+    push offset puntos1
+    call printf
+    push offset separador
+    call printf
     pop bx
     mov dx, bx
     push bx
@@ -93,17 +205,33 @@ main proc
     
     mov [index+4], esi
     call Respuestas2
-   ; pop cx
+    push offset separador
+    call printf
+    push offset puntos1
+    call printf
+    push offset separador
+    call printf
+   ;pop cx
     mov dx, cx
     mov ebx, 2
     call RandomPregunta
     mov [index+8], esi
     call Respuestas3
     call  DificilPregunta1
-
-    ; Exit the program
+    push dword ptr [puntos]
+    push offset ganado
+    call printf
+    push offset desp
+    call printf
     push 0
     call exit
+
+terminar:
+    push offset desp
+    call printf
+    push 0
+    call exit
+
 main endp
 ; ------------ SUBRUTINAS -------------
 ;___________________________________________
@@ -182,12 +310,49 @@ lverificar:
     jne lverificar
     ; termina el ciclo
      .IF bandera != 0 ; verificar si está correcta
-        add puntos, 10;
+        add puntos, 10 
 		push offset correcta
 		call printf
+
+        push offset cont1
+        call printf
+        push offset cont2
+        call printf
+
+            add esp, 4 ; Limpia la pila
+            lea eax, [ebp-4] ; Obtiene la dirección de la variable local
+            push eax ; Pone la dirección en la pila
+            push offset fmt_valor ; Pone la dirección de la cadena de formato en la pila
+            call scanf ; Llama a la función scanf para leer el número ingresado
+            add esp, 8 ; Limpia la pila
+            mov eax, [ebp-4] ; Mueve el número ingresado a eax
+
+        .IF eax == 1 ; verificar continuar
+            je continuar
+
+	    .ELSE
+
+        push dword ptr [puntos]
+        push offset ganado
+        call printf
+        push offset desp
+        call printf
+        push 0
+        call exit
+
+            continuar:
+	    .ENDIF
+
 	.ELSE
 		push offset incorrecta
 		call printf
+        push dword ptr [puntos]
+        push offset ganado
+        call printf
+        push offset desp
+        call printf
+        push 0
+        call exit
 	.ENDIF
     add esp, 8 ; Limpia la pila
 ret
@@ -201,7 +366,13 @@ DificilPregunta1 proc
 ;Pregunta 1
     mov esi, offset prespuestas ; arreglo de respuestas
 	mov ebx, sizeof	prespuestas ; tamaño del arreglo respuestas
-	mov edi, offset	opi ;arreglo de los a, b, c, d 
+	mov edi, offset	opi ;arreglo de los a, b, c, d
+    push offset separador
+    call printf
+    push offset puntos1
+    call printf
+    push offset separador
+    call printf
     push offset p1 ;impresión de la pregunta 1
 	call printf
 label1:
@@ -223,19 +394,65 @@ label1:
     call scanf ; Llama a la función scanf para leer el número ingresado
     add esp, 8 ; Limpia la pila
     mov eax, [ebp-4] ; Mueve el número ingresado a eax
+
     .IF eax == 25 ; verificar si está correcta
-        add puntos, 30;
+        add esp, 4
+        add puntos, 60;
 		push offset correcta
 		call printf
+
+        push offset cont1
+        call printf
+        push offset cont2
+        call printf
+
+        add esp, 4 ; Limpia la pila
+        lea eax, [ebp-4] ; Obtiene la dirección de la variable local
+        push eax ; Pone la dirección en la pila
+        push offset fmt_valor ; Pone la dirección de la cadena de formato en la pila
+        call scanf ; Llama a la función scanf para leer el número ingresado
+        add esp, 8 ; Limpia la pila
+        mov eax, [ebp-4] ; Mueve el número ingresado a eax
+
+        .IF eax == 1 ; verificar continuar
+            je continuar
+
+	    .ELSE
+
+            push dword ptr [puntos]
+            push offset ganado
+            call printf
+            push offset desp
+            call printf
+            push 0
+            call exit
+
+            continuar:
+	    .ENDIF
+
 	.ELSE
+
 		push offset incorrecta
 		call printf
+        push dword ptr [puntos]
+        push offset ganado
+        call printf
+        push offset desp
+        call printf
+        push 0
+        call exit
 	.ENDIF
     add esp, 8 ; Limpia la pila
 ;Pregunta 2
     mov esi, offset prespuestas ; arreglo de respuestas
 	mov ebx, sizeof	prespuestas ; tamaño del arreglo respuestas
-	mov edi, offset	opi ;arreglo de los a, b, c, d 
+	mov edi, offset	opi ;arreglo de los a, b, c, d
+    push offset separador
+    call printf
+    push offset puntos1
+    call printf
+    push offset separador
+    call printf
     push offset p2 ;impresión de la pregunta 2
 	call printf
 label2:
@@ -257,12 +474,28 @@ label2:
     add esp, 8 ; Limpia la pila
     mov eax, [ebp-4] ; Mueve el número ingresado a eax
     .IF eax == 2 ; verificar si está correcta
-        add puntos, 30;
+        add esp, 4
+        add puntos, 60;
 		push offset correcta
 		call printf
+        push offset ganador
+        call printf
+        push dword ptr [puntos]
+        push offset ganado
+        call printf
+        push 0
+        call exit
+
 	.ELSE
 		push offset incorrecta
 		call printf
+        push dword ptr [puntos]
+        push offset ganado
+        call printf
+        push offset desp
+        call printf
+        push 0
+        call exit
 	.ENDIF
     add esp, 8 ; Limpia la pila
     ret
@@ -279,106 +512,118 @@ mov ebx,[index]
     .if ebx ==0
             mov esi, offset arr1 ; arreglo de respuestas
 	        mov ebx, sizeof	arr1 ; tamaño del arreglo respuestas
-	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
-            push OFFSET formatString  
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d
+            push OFFSET formatString
             call printf  ; Imprime la pregunta
+
 .endif
     .if ebx ==1
             mov esi, offset arr2 ; arreglo de respuestas
 	        mov ebx, sizeof	arr2 ; tamaño del arreglo respuestas
-	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==2
             mov esi, offset arr3 ; arreglo de respuestas
 	        mov ebx, sizeof	arr3 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==3
             mov esi, offset arr4 ; arreglo de respuestas
 	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==4
             mov esi, offset arr5 ; arreglo de respuestas
 	        mov ebx, sizeof	arr5 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==5
-            mov esi, offset arr4 ; arreglo de respuestas
-	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
+            mov esi, offset arr6 ; arreglo de respuestas
+	        mov ebx, sizeof	arr6 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==6
             mov esi, offset arr7 ; arreglo de respuestas
 	        mov ebx, sizeof	arr7 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==7
             mov esi, offset arr8 ; arreglo de respuestas
 	        mov ebx, sizeof	arr8 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==8
             mov esi, offset arr9 ; arreglo de respuestas
 	        mov ebx, sizeof	arr9 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==9
             mov esi, offset arr10 ; arreglo de respuestas
 	        mov ebx, sizeof	arr10 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==10
             mov esi, offset arr11 ; arreglo de respuestas
 	        mov ebx, sizeof	arr11 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==11
             mov esi, offset arr12 ; arreglo de respuestas
 	        mov ebx, sizeof	arr12 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     .if ebx ==12
             mov esi, offset arr13 ; arreglo de respuestas
 	        mov ebx, sizeof	arr13 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
-            push eax  
+            push eax
             push OFFSET formatString  
             call printf  ; Imprime la pregunta
+
     .endif
     label1:
 	    mov eax, [esi]     
@@ -446,8 +691,8 @@ mov ebx,[index+4]
             call printf  ; Imprime la pregunta
     .endif
     .if ebx ==5
-            mov esi, offset arr4 ; arreglo de respuestas
-	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
+            mov esi, offset arr6 ; arreglo de respuestas
+	        mov ebx, sizeof	arr6 ; tamaño del arreglo respuestas
 	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
             push eax  
             push OFFSET formatString  
