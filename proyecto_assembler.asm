@@ -3,10 +3,9 @@
 ; Organización de computadoras y Assembler
 ; Ciclo 1 - 2023
 ; Nombre: proyecto_assembler.asm
-; Descripción: 
-; Autor: 
+; Descripción: Proyecto #2 Assembler, temario 7
+; Autor: Esteban Meza #22252 ,Sofia Mishell Velasquez #22049, Nicolle Gordillo #22246,Paula Rebeca Barillas #22764
 ; ----------------------------------------------- 
-
 .386
 .model flat, stdcall, c
 .stack 4096
@@ -41,14 +40,16 @@ opf BYTE '%s).%d', 0AH, 0
 incorrecta BYTE 'Respuesta incorrecta ingresada',0AH,0
 correcta BYTE 'Respuesta correcta',0AH,0
 puntos DW 0; puntos acumulados
+bandera DW 0; bandera indicadora si la respuesta es correcta
+value DW 0;
 ;Array de opciones para cada pregunta
 opi BYTE 'a', 0, 'b', 0, 'c', 0, 'd', 0, 'a', 0, 'b', 0, 'c', 0, 'd', 0
 opi2 BYTE 'a', 0, 'b', 0, 'c', 0, 'd', 0
 ;Array de las preguntas
 arrayOfStrings DWORD OFFSET msg1, OFFSET msg2, OFFSET msg3, OFFSET msg4, OFFSET msg5, OFFSET msg6, OFFSET msg7, OFFSET msg8, OFFSET msg9, OFFSET msg10, OFFSET msg11, OFFSET msg12, OFFSET msg13
 arraySize DWORD 13
-;Array de las respuetas
-;arr DWORD 77, 48, 12, 1, 0, 5, 35, 9, 15, 44, 22, 10, 4
+;Array de las respuestas
+arr DWORD 77, 48, 12, 1, 0, 5, 35, 8, 15, 44, 22, 10, 4
 ;posibles respuestas
 arr1 DWORD 77, 70, 71, 65
 arr2 DWORD 32, 47, 48, 49
@@ -57,7 +58,7 @@ arr4 DWORD 1, 2, 3, 7
 arr5 DWORD  0, 2, 3, 11
 arr6 DWORD  7, 6, 8, 5
 arr7 DWORD 32, 35, 33, 30
-arr8 DWORD 9, 11, 13, 14
+arr8 DWORD 9, 11, 8, 14
 arr9 DWORD 16, 17, 15,18
 arr10 DWORD 43, 42, 40,44
 arr11 DWORD 21, 22, 23, 25
@@ -154,6 +155,44 @@ mov eax, [arrayOfStrings + esi*4]
 ret
 RandomPregunta endp
 ;___________________________________________
+;verificar
+;input: var global opi2, arr
+;output: 
+;___________________________________________
+verificar proc
+    mov eax,0
+    mov value,0
+    mov bandera, 0 ;inciamos la bandera en falso
+    lea eax, [ebp-4] ; Obtiene la dirección de la variable local
+    push eax ; Pone la dirección en la pila
+    push offset fmt_valor ; Pone la dirección de la cadena de formato en la pila
+    call scanf ; Llama a la función scanf para leer el número ingresado
+    add esp, 8 ; Limpia la pila
+    mov eax, [ebp-4] ; Mueve el número ingresado a eax    
+    mov edi, offset	arr ;arreglo de las respuestas 
+    mov ebx, sizeof	arr ; tamaño del arreglo respuestas
+lverificar:
+    mov ecx, [edi]         ; muestra el elemento del array actual
+    .IF eax == ecx ; verificar si está correcta
+        add bandera, 1 ; cambiamos el valor de la bandera a verdadero
+	.ENDIF
+    add edi, 4
+    sub ebx, 4
+    cmp ebx, 0            
+    jne lverificar
+    ; termina el ciclo
+     .IF bandera != 0 ; verificar si está correcta
+        add puntos, 10;
+		push offset correcta
+		call printf
+	.ELSE
+		push offset incorrecta
+		call printf
+	.ENDIF
+    add esp, 8 ; Limpia la pila
+ret
+verificar endp
+;___________________________________________
 ;DificilPregunta1
 ;input: var global opi, p1, p2
 ;output: var global puntos
@@ -185,7 +224,7 @@ label1:
     add esp, 8 ; Limpia la pila
     mov eax, [ebp-4] ; Mueve el número ingresado a eax
     .IF eax == 25 ; verificar si está correcta
-        add puntos, 3;
+        add puntos, 30;
 		push offset correcta
 		call printf
 	.ELSE
@@ -218,7 +257,7 @@ label2:
     add esp, 8 ; Limpia la pila
     mov eax, [ebp-4] ; Mueve el número ingresado a eax
     .IF eax == 2 ; verificar si está correcta
-        add puntos, 3;
+        add puntos, 30;
 		push offset correcta
 		call printf
 	.ELSE
@@ -355,7 +394,7 @@ mov ebx,[index]
      
     mov ebx, 1
     add esp, 14*4
-
+    call verificar
 ret
 Respuestas1 endp
 ;___________________________________________
@@ -484,6 +523,7 @@ mov ebx,[index+4]
      
     mov ebx, 2
     add esp, 14*4
+    call verificar
 
 ret
 Respuestas2 endp
@@ -613,7 +653,7 @@ mov ebx,[index+8]
      
     
     add esp, 14*4
-
+    call verificar
 ret
 Respuestas3 endp
 end 
