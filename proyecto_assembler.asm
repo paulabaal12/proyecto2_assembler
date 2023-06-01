@@ -3,8 +3,8 @@
 ; Organización de computadoras y Assembler
 ; Ciclo 1 - 2023
 ; Nombre: proyecto_assembler.asm
-; Descripción: Proyecto #2 Assembler, temario 7
-; Autor: Esteban Meza #22252 ,Sofia Mishell Velasquez #22049, Nicolle Gordillo #22246,Paula Rebeca Barillas #22764
+; Descripción: 
+; Autor: 
 ; ----------------------------------------------- 
 
 .386
@@ -28,10 +28,13 @@ msg10 BYTE '6x8 menos cuatro es:', 0AH,0
 msg11 BYTE '1/3 de 66 es igual a', 0AH,0
 msg12 BYTE 'si 10+x = 15, 2x es:', 0AH,0
 msg13 BYTE 'x+y=1 y 3x+2y=6, x =', 0AH,0
+
 fmt_valor db "%d", 0
+
 ;Preguntas dificiles
 p1 BYTE 'Cual es el area de un circulo con radio 5 unidades? (en pi )', 0AH,0 ; es 25
 p2 BYTE 'Cual es la pendiente de la recta que pasa por los puntos (2, 5) y (4, 3)?', 0AH,0 ;es 2
+
 prespuestas DWORD 10, 15, 20, 25, 1, 2, 3, 4 
 opf BYTE '%s).%d', 0AH, 0
 ;Mensajes de incorrecta y correcta
@@ -40,18 +43,31 @@ correcta BYTE 'Respuesta correcta',0AH,0
 puntos DW 0; puntos acumulados
 ;Array de opciones para cada pregunta
 opi BYTE 'a', 0, 'b', 0, 'c', 0, 'd', 0, 'a', 0, 'b', 0, 'c', 0, 'd', 0
+opi2 BYTE 'a', 0, 'b', 0, 'c', 0, 'd', 0
 ;Array de las preguntas
 arrayOfStrings DWORD OFFSET msg1, OFFSET msg2, OFFSET msg3, OFFSET msg4, OFFSET msg5, OFFSET msg6, OFFSET msg7, OFFSET msg8, OFFSET msg9, OFFSET msg10, OFFSET msg11, OFFSET msg12, OFFSET msg13
 arraySize DWORD 13
 ;Array de las respuetas
-
-arr DWORD 77, 48, 12, 1, 0, 5, 35, 9, 15, 44, 22, 10, 4
-formatString BYTE '%s', 0
+;arr DWORD 77, 48, 12, 1, 0, 5, 35, 9, 15, 44, 22, 10, 4
+;posibles respuestas
+arr1 DWORD 77, 70, 71, 65
+arr2 DWORD 32, 47, 48, 49
+arr3 DWORD 11, 12, 14, 13
+arr4 DWORD 1, 2, 3, 7
+arr5 DWORD  0, 2, 3, 11
+arr6 DWORD  7, 6, 8, 5
+arr7 DWORD 32, 35, 33, 30
+arr8 DWORD 9, 11, 13, 14
+arr9 DWORD 16, 17, 15,18
+arr10 DWORD 43, 42, 40,44
+arr11 DWORD 21, 22, 23, 25
+arr12 DWORD 11, 10,16,13
+arr13 DWORD 6, 4, 8, 2
 index DWORD 0, 0, 0
+formatString BYTE '%s', 0
 comp1 DWORD 0
 comp2 DWORD 0
 comp DWORD 0
-
 .code
 includelib libucrt.lib
 includelib legacy_stdio_definitions.lib
@@ -61,26 +77,32 @@ includelib libvcruntime.lib
 extrn printf:near
 extrn exit:near
 extrn scanf:near
-
 public main
 main proc
     call RandomPregunta
-    mov dx, bx
-    add ebx,1
+    push bx
+    ;push cx
     mov [index], esi
-    mov comp1, ebx
+    call Respuestas1
+    pop bx
+    mov dx, bx
+    push bx
+    mov ebx, 1
     call RandomPregunta
-    mov dx, cx
+    
     mov [index+4], esi
-    add ebx,1
-    mov comp2, ebx
+    call Respuestas2
+   ; pop cx
+    mov dx, cx
+    mov ebx, 2
     call RandomPregunta
+    mov [index+8], esi
+    call Respuestas3
     call  DificilPregunta1
 
     ; Exit the program
     push 0
     call exit
-
 main endp
 ; ------------ SUBRUTINAS -------------
 ;___________________________________________
@@ -89,7 +111,6 @@ main endp
 ;output: NO utiliza
 ;___________________________________________
 RandomPregunta proc
-
     ; Genera el random index
     mov ax, dx
     xor dx, dx
@@ -97,7 +118,7 @@ RandomPregunta proc
     div cx  
     ; Calcula el index para la pregunta
     movzx esi, dx  
-    .if ebx ==comp1
+    .if ebx ==1
         lCheckIndex:
             cmp esi, [index]
             je lGenerateNewIndex    
@@ -112,7 +133,7 @@ RandomPregunta proc
             jmp lCheckIndex
         lexit:
     .endif
-    .if ebx==comp2
+    .if ebx==2
         lCheckIndex2:
             cmp esi, [index]
             je lGenerateNewIndex2
@@ -129,13 +150,7 @@ RandomPregunta proc
             jmp lCheckIndex2
         lexit2:
     .endif
-
 mov eax, [arrayOfStrings + esi*4]
-push eax  
-push OFFSET formatString  
-call printf  ; Imprime la pregunta
-; Check if the generated index is already in the index array
-add esp, 8  ; Limpia el stack
 ret
 RandomPregunta endp
 ;___________________________________________
@@ -214,5 +229,391 @@ label2:
     ret
 DificilPregunta1 endp
 
+;___________________________________________
+;Respuestas1
+;input: var global opi2, arr
+;output: 
+;___________________________________________
+Respuestas1 proc
+;Pregunta 1
+mov ebx,[index]
+    .if ebx ==0
+            mov esi, offset arr1 ; arreglo de respuestas
+	        mov ebx, sizeof	arr1 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+.endif
+    .if ebx ==1
+            mov esi, offset arr2 ; arreglo de respuestas
+	        mov ebx, sizeof	arr2 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==2
+            mov esi, offset arr3 ; arreglo de respuestas
+	        mov ebx, sizeof	arr3 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==3
+            mov esi, offset arr4 ; arreglo de respuestas
+	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==4
+            mov esi, offset arr5 ; arreglo de respuestas
+	        mov ebx, sizeof	arr5 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==5
+            mov esi, offset arr4 ; arreglo de respuestas
+	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==6
+            mov esi, offset arr7 ; arreglo de respuestas
+	        mov ebx, sizeof	arr7 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==7
+            mov esi, offset arr8 ; arreglo de respuestas
+	        mov ebx, sizeof	arr8 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==8
+            mov esi, offset arr9 ; arreglo de respuestas
+	        mov ebx, sizeof	arr9 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==9
+            mov esi, offset arr10 ; arreglo de respuestas
+	        mov ebx, sizeof	arr10 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==10
+            mov esi, offset arr11 ; arreglo de respuestas
+	        mov ebx, sizeof	arr11 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==11
+            mov esi, offset arr12 ; arreglo de respuestas
+	        mov ebx, sizeof	arr12 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==12
+            mov esi, offset arr13 ; arreglo de respuestas
+	        mov ebx, sizeof	arr13 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    label1:
+	    mov eax, [esi]     
+        push eax
+        push edi
+        push offset opf
+        call printf
+        add edi, 2
+        add esi, 4
+        sub ebx, 4
+        cmp ebx, 0  
+        jne label1
+     
+    mov ebx, 1
+    add esp, 14*4
 
+ret
+Respuestas1 endp
+;___________________________________________
+;Respuestas2
+;input: var global opi2, arr
+;output: 
+;___________________________________________
+Respuestas2 proc
+;Pregunta 2
+mov ebx,[index+4]
+    .if ebx ==0
+            mov esi, offset arr1 ; arreglo de respuestas
+	        mov ebx, sizeof	arr1 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+.endif
+    .if ebx ==1
+            mov esi, offset arr2 ; arreglo de respuestas
+	        mov ebx, sizeof	arr2 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==2
+            mov esi, offset arr3 ; arreglo de respuestas
+	        mov ebx, sizeof	arr3 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==3
+            mov esi, offset arr4 ; arreglo de respuestas
+	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==4
+            mov esi, offset arr5 ; arreglo de respuestas
+	        mov ebx, sizeof	arr5 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==5
+            mov esi, offset arr4 ; arreglo de respuestas
+	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==6
+            mov esi, offset arr7 ; arreglo de respuestas
+	        mov ebx, sizeof	arr7 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==7
+            mov esi, offset arr8 ; arreglo de respuestas
+	        mov ebx, sizeof	arr8 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==8
+            mov esi, offset arr9 ; arreglo de respuestas
+	        mov ebx, sizeof	arr9 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==9
+            mov esi, offset arr10 ; arreglo de respuestas
+	        mov ebx, sizeof	arr10 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==10
+            mov esi, offset arr11 ; arreglo de respuestas
+	        mov ebx, sizeof	arr11 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==11
+            mov esi, offset arr12 ; arreglo de respuestas
+	        mov ebx, sizeof	arr12 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==12
+            mov esi, offset arr13 ; arreglo de respuestas
+	        mov ebx, sizeof	arr13 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    label1:
+	    mov eax, [esi]     
+        push eax
+        push edi
+        push offset opf
+        call printf
+        add edi, 2
+        add esi, 4
+        sub ebx, 4
+        cmp ebx, 0  
+        jne label1
+     
+    mov ebx, 2
+    add esp, 14*4
+
+ret
+Respuestas2 endp
+;___________________________________________
+;Respuestas3
+;input: var global opi2, arr
+;output: 
+;___________________________________________
+Respuestas3 proc
+;Pregunta 3
+mov ebx,[index+8]
+    .if ebx ==0
+            mov esi, offset arr1 ; arreglo de respuestas
+	        mov ebx, sizeof	arr1 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+.endif
+    .if ebx ==1
+            mov esi, offset arr2 ; arreglo de respuestas
+	        mov ebx, sizeof	arr2 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==2
+            mov esi, offset arr3 ; arreglo de respuestas
+	        mov ebx, sizeof	arr3 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==3
+            mov esi, offset arr4 ; arreglo de respuestas
+	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==4
+            mov esi, offset arr5 ; arreglo de respuestas
+	        mov ebx, sizeof	arr5 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==5
+            mov esi, offset arr4 ; arreglo de respuestas
+	        mov ebx, sizeof	arr4 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==6
+            mov esi, offset arr7 ; arreglo de respuestas
+	        mov ebx, sizeof	arr7 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==7
+            mov esi, offset arr8 ; arreglo de respuestas
+	        mov ebx, sizeof	arr8 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==8
+            mov esi, offset arr9 ; arreglo de respuestas
+	        mov ebx, sizeof	arr9 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==9
+            mov esi, offset arr10 ; arreglo de respuestas
+	        mov ebx, sizeof	arr10 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==10
+            mov esi, offset arr11 ; arreglo de respuestas
+	        mov ebx, sizeof	arr11 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==11
+            mov esi, offset arr12 ; arreglo de respuestas
+	        mov ebx, sizeof	arr12 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    .if ebx ==12
+            mov esi, offset arr13 ; arreglo de respuestas
+	        mov ebx, sizeof	arr13 ; tamaño del arreglo respuestas
+	        mov edi, offset	opi2 ;arreglo de los a, b, c, d 
+            push eax  
+            push OFFSET formatString  
+            call printf  ; Imprime la pregunta
+    .endif
+    label1:
+	    mov eax, [esi]     
+        push eax
+        push edi
+        push offset opf
+        call printf
+        add edi, 2
+        add esi, 4
+        sub ebx, 4
+        cmp ebx, 0  
+        jne label1
+     
+    
+    add esp, 14*4
+
+ret
+Respuestas3 endp
 end 
